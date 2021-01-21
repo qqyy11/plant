@@ -16,7 +16,7 @@ else:
     from urllib2 import Request
     from urllib2 import URLError
     from urllib import urlencode
-class Baidu:
+class PlantIdentification:
 
     API_KEY = 'q6eXfVjNhTVlQ0UuU8XApKsG'
 
@@ -35,16 +35,45 @@ class Baidu:
         # 防止https证书校验不正确
         print('in')
 
-    def plant_identification():
+    def baidu_identification(self, image):
         # 获取access token
         token = self.fetch_token()
 
+        # 植物图1
+        print("植物图1")
         # 拼接图像识别url
         url = self.IMAGE_RECOGNIZE_URL + "?access_token=" + token
+        # 获取图片
+        file_content = self.read_file(image)
+        exit()
+        response = self.request(url, urlencode(
+            {
+                'image': base64.b64encode(file_content),
+                'top_num': 1
+            }))
+        result_json = json.loads(response)
+
+        # 打印图片结果
+        print(result_json)
+
+    def juhe_identification(self, image):
+
+        juhe_url = 'http://apis.juhe.cn/plantDetect/index'
+        key = 'ae5c1e365ac618bdb5a315d94e91bd8f'
 
         # 植物图1
         print("植物图1")
-        self.print_result("./plant.jpg", url)
+        # 获取图片
+        file_content = self.read_file(image)
+        response = self.request(url, urlencode(
+            {
+                'image': base64.b64encode(file_content),
+                'key': key
+            }))
+        result_json = json.loads(response)
+
+        # 打印图片结果
+        print(result_json)
 
     def fetch_token(self):
         params = {'grant_type': 'client_credentials',
@@ -53,7 +82,7 @@ class Baidu:
         post_data = urlencode(params)
         if (IS_PY3):
             post_data = post_data.encode('utf-8')
-        req = Request(TOKEN_URL.TOKEN_URL, post_data)
+        req = Request(self.TOKEN_URL, post_data)
         try:
             f = urlopen(req, timeout=5)
             result_str = f.read()
@@ -76,7 +105,7 @@ class Baidu:
     """
         读取文件
     """
-    def read_file(image_path):
+    def read_file(self,image_path):
         f = None
         try:
             f = open(image_path, 'rb')
@@ -91,7 +120,7 @@ class Baidu:
     """
         调用远程服务
     """
-    def request(url, data):
+    def request(self,url, data):
         req = Request(url, data.encode('utf-8'))
         has_error = False
         try:
@@ -102,25 +131,3 @@ class Baidu:
             return result_str
         except  URLError as err:
             print(err)
-
-    """
-        调用菜品识别接口并打印结果
-    """
-    def print_result(filename, url):
-        # 获取图片
-        file_content = self.read_file(filename)
-        print(urlencode(
-            {
-                'image': 'a',
-                'top_num': 1
-            }))
-        sys.exit()
-        response = self.request(url, urlencode(
-            {
-                'image': base64.b64encode(file_content),
-                'top_num': 1
-            }))
-        result_json = json.loads(response)
-
-        # 打印图片结果
-        print(result_json)
